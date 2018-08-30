@@ -1,0 +1,60 @@
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	myConfig
+}
+
+apply plugin : 'java'
+
+dependencies {
+	compile 'org.apache.commons:commons-lang3:3.3.2'
+	myConfig 'org.apache.commons:commons-lang3:3.3.2'
+}
+
+sourceSets {
+	main.java.srcDir 'src/main'
+	test.java.srcDir 'src/test' 
+}
+
+jar {
+	from configurations.myConfig.collect { zipTree it }
+	manifest.attributes 'Main-Class' : 'preetham.gradlePrac.Hello'
+}
+
+task HelloWorld{
+	group  'greeting'
+	description  'Duh you are a Developer.'
+	//configurationphase
+	println 'I am still configuring!'
+	
+	//ext for extra properties (like String a, int b)
+	ext.greeting = 'Yipee!I am a variable'
+	
+	//Execution Phase
+	doLast { println 'Hello World!'}
+	doLast { println 'What\'s crackin'}
+	doFirst { println 'What\'s happenin! I shouldn\'t come first!'}
+	doLast {println "Greeting: $greeting"}
+}
+
+task run(type: JavaExec, dependsOn : classes){
+	//type JavaExec
+	//depends on classes
+	main 'preetham.gradlePrac.Hello'
+	classpath sourceSets.main.runtimeClasspath
+	args 'Hello World', 'Crispy I am coming directly from class!!!' 
+}
+
+task runJar(type:Exec,dependsOn: jar){
+	onlyIf { true }
+	executable 'java'
+	args '-jar', "$jar.archivePath" , 'Hello World', 'Yipee I am coming again!!!' 
+}
+
+task writeGreeting {
+	outputs.file file('greeting.txt')
+	doLast { file('greeting.txt').text = 'Hello, fello citizen!' }
+	} 
+	
